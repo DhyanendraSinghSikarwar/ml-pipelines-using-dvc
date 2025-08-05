@@ -76,6 +76,9 @@ def normalize_text(df):
 train_processed_data = normalize_text(train_data)
 test_processed_data = normalize_text(test_data)
 
+# train_processed_data.fillna('', inplace=True)
+# test_processed_data.fillna('', inplace=True)
+
 # store the preprocessed data at data/processed
 data_path = os.path.join('./data/processed')
 
