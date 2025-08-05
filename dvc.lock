@@ -16,6 +16,11 @@ stages:
   data_preprocessing:
     cmd: python3 src/data_preprocessing.py
     deps:
+    - path: data/raw
+      hash: md5
+      md5: b44f108bef631af6dcc12f1d0290b77b.dir
+      size: 876848
+      nfiles: 2
     - path: src/data_preprocessing.py
       hash: md5
       md5: be3edc188be2cf6a9e8714b09d6d1e2b
