@@ -15,8 +15,11 @@ y_train = train_data['sentiment'].values
 X_test = test_data['content'].values
 y_test = test_data['sentiment'].values
 
+train_data.fillna('', inplace=True)
+test_data.fillna('', inplace=True)
+
 #apply Bag of Words
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(max_features=500)
 
 # Fit and transform the training data, transform the test data
 X_train_bow = vectorizer.fit_transform(X_train)
@@ -27,8 +30,7 @@ train_df['label'] = y_train
 test_df = pd.DataFrame(X_test_bow.toarray(), columns=vectorizer.get_feature_names_out())
 test_df['label'] = y_test
 
-train_data.fillna('', inplace=True)
-test_data.fillna('', inplace=True)
+
 
 # store the data inside data/features
 data_path = os.path.join('data', 'features')

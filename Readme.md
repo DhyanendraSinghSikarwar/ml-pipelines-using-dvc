@@ -6,3 +6,7 @@ dvc stage add -n data_preprocessing -d src/data_preprocessing.py -d data/raw -o 
 dvc repro
 # to visualize all the stages
 dvc dag 
+# to add metrics as well
+dvc stage add -n model_evaluation -d src/model_evaluation.py  -d model.pkl --metrics metrics.json python3 src/model_evaluation.py 
+# to check the metrics
+dvc metrics show
