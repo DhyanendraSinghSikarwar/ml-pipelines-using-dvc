@@ -13,9 +13,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-# fetch the data from data/raw
-train_data = pd.read_csv('./data/raw/train.csv')
-test_data = pd.read_csv('./data/raw/test.csv')
+def load_data():
+    # fetch the data from data/raw
+    train_data = pd.read_csv('./data/raw/train.csv')
+    test_data = pd.read_csv('./data/raw/test.csv')
+    return train_data, test_data
 
 # transform the text data
 def lemmatization(text):
@@ -72,17 +74,22 @@ def normalize_text(df):
     df.content=df.content.apply(lambda content : lemmatization(content))
     return df
 
+def save_processed_data(data_path, train_df, test_df):
+    os.makedirs(data_path, exist_ok=True)
+    train_df.to_csv(os.path.join(data_path, "train_processed.csv"), index=False)
+    test_df.to_csv(os.path.join(data_path, "test_processed.csv"), index=False)
 
-train_processed_data = normalize_text(train_data)
-test_processed_data = normalize_text(test_data)
+def main():
+    # Load the data
+    train_data, test_data = load_data()
 
-# train_processed_data.fillna('', inplace=True)
-# test_processed_data.fillna('', inplace=True)
+    train_processed_data = normalize_text(train_data)
+    test_processed_data = normalize_text(test_data)
 
-# store the preprocessed data at data/processed
-data_path = os.path.join('./data/processed')
+    # store the preprocessed data at data/processed
+    data_path = os.path.join('./data/processed')
 
-os.makedirs(data_path, exist_ok=True)
+    save_processed_data(data_path, train_processed_data, test_processed_data)
 
-train_processed_data.to_csv(os.path.join(data_path, 'train_processed.csv'), index=False)
-test_processed_data.to_csv(os.path.join(data_path, 'test_processed.csv'), index=False)
+if __name__ == "__main__":
+    main()

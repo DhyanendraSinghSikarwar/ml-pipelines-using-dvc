@@ -5,39 +5,76 @@ import yaml
 
 from sklearn.feature_extraction.text import CountVectorizer
 
-max_features = yaml.safe_load(open('params.yaml', 'r'))['feature_engineering']['max_features']
+def load_params():
+    return yaml.safe_load(open('params.yaml', 'r'))
 
-# fetch the data from data/processed
-train_data = pd.read_csv('./data/processed/train_processed.csv')
-test_data = pd.read_csv('./data/processed/test_processed.csv')
 
-# Apply BOW
-X_train = train_data['content'].values
-y_train = train_data['sentiment'].values
+def load_data():
+    # fetch the data from data/processed
+    train_data = pd.read_csv('./data/processed/train_processed.csv')
+    test_data = pd.read_csv('./data/processed/test_processed.csv')
+    return train_data, test_data
 
-X_test = test_data['content'].values
-y_test = test_data['sentiment'].values
 
-train_data.fillna('', inplace=True)
-test_data.fillna('', inplace=True)
+def preprocess_features(train_data, test_data):
+    # Apply BOW
+    X_train = train_data['content'].values
+    y_train = train_data['sentiment'].values
 
-#apply Bag of Words
-vectorizer = CountVectorizer(max_features=max_features)
+    X_test = test_data['content'].values
+    y_test = test_data['sentiment'].values
 
-# Fit and transform the training data, transform the test data
-X_train_bow = vectorizer.fit_transform(X_train)
-X_test_bow = vectorizer.transform(X_test)
+    train_data.fillna('', inplace=True)
+    test_data.fillna('', inplace=True)
+    return X_train, y_train, X_test, y_test
 
-train_df = pd.DataFrame(X_train_bow.toarray(), columns=vectorizer.get_feature_names_out())
-train_df['label'] = y_train
-test_df = pd.DataFrame(X_test_bow.toarray(), columns=vectorizer.get_feature_names_out())
-test_df['label'] = y_test
 
+def apply_bow(X_train, X_test, max_features):
+    # Apply Bag of Words
+    vectorizer = CountVectorizer(max_features=max_features)
+
+    # Fit and transform the training data, transform the test data
+    X_train_bow = vectorizer.fit_transform(X_train)
+    X_test_bow = vectorizer.transform(X_test)
+
+    return X_train_bow, X_test_bow, vectorizer
+
+
+def convert_to_dataframe(X_train_bow, X_test_bow, y_train, y_test, vectorizer):
+    # Convert to DataFrame
+    train_df = pd.DataFrame(X_train_bow.toarray(), columns=vectorizer.get_feature_names_out())
+    train_df['label'] = y_train
+    test_df = pd.DataFrame(X_test_bow.toarray(), columns=vectorizer.get_feature_names_out())
+    test_df['label'] = y_test
+    return train_df, test_df
 
 
 # store the data inside data/features
-data_path = os.path.join('data', 'features')
-os.makedirs(data_path, exist_ok=True)
+def save_data(data_path, train_df, test_df):
+    os.makedirs(data_path, exist_ok=True)
+    train_df.to_csv(os.path.join(data_path, 'train_bow.csv'), index=False)
+    test_df.to_csv(os.path.join(data_path, 'test_bow.csv'), index=False)
 
-train_df.to_csv(os.path.join(data_path, 'train_bow.csv'), index=False)
-test_df.to_csv(os.path.join(data_path, 'test_bow.csv'), index=False)
+
+def main():
+    params = load_params()
+    max_features = params['feature_engineering']['max_features']
+
+    # fetch the data from data/processed
+    train_data, test_data = load_data()
+    
+    # Preprocess features
+    X_train, y_train, X_test, y_test = preprocess_features(train_data, test_data)
+
+    # Apply BOW
+    X_train_bow, X_test_bow, vectorizer = apply_bow(X_train, X_test, max_features)
+
+    # Convert to DataFrame
+    train_df, test_df = convert_to_dataframe(X_train_bow, X_test_bow, y_train, y_test, vectorizer)
+    
+    data_path = os.path.join('data', 'features')
+    # Save the processed data
+    save_data(data_path, train_df, test_df)
+
+if __name__ == "__main__":
+    main()
