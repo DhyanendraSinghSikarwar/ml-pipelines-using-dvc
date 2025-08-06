@@ -20,7 +20,7 @@ def load_data():
     return train_data, test_data
 
 # transform the text data
-def lemmatization(text):
+def lemmatization(text: str) -> str:
     lemmatizer= WordNetLemmatizer()
 
     text = text.split()
@@ -29,24 +29,24 @@ def lemmatization(text):
 
     return " " .join(text)
 
-def remove_stop_words(text):
+def remove_stop_words(text: str) -> str:
     stop_words = set(stopwords.words("english"))
     Text=[i for i in str(text).split() if i not in stop_words]
     return " ".join(Text)
 
-def removing_numbers(text):
+def removing_numbers(text: str) -> str:
     text=''.join([i for i in text if not i.isdigit()])
     return text
 
-def lower_case(text):
+def lower_case(text: str) -> str:
 
     text = text.split()
 
-    text=[y.lower() for y in text]
+    text = [y.lower() for y in text]
 
     return " " .join(text)
 
-def removing_punctuations(text):
+def removing_punctuations(text: str) -> str:
     ## Remove punctuations
     text = re.sub('[%s]' % re.escape("""!"#$%&'()*+,،-./:;<=>؟?@[\]^_`{|}~"""), ' ', text)
     text = text.replace('؛',"", )
@@ -56,25 +56,25 @@ def removing_punctuations(text):
     text =  " ".join(text.split())
     return text.strip()
 
-def removing_urls(text):
+def removing_urls(text: str) -> str:
     url_pattern = re.compile(r'https?://\S+|www\.\S+')
     return url_pattern.sub(r'', text)
 
-def remove_small_sentences(df):
+def remove_small_sentences(df: pd.DataFrame) -> None:
     for i in range(len(df)):
         if len(df.text.iloc[i].split()) < 3:
             df.text.iloc[i] = np.nan
 
-def normalize_text(df):
-    df.content=df.content.apply(lambda content : lower_case(content))
-    df.content=df.content.apply(lambda content : remove_stop_words(content))
-    df.content=df.content.apply(lambda content : removing_numbers(content))
-    df.content=df.content.apply(lambda content : removing_punctuations(content))
-    df.content=df.content.apply(lambda content : removing_urls(content))
-    df.content=df.content.apply(lambda content : lemmatization(content))
+def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
+    df.content = df.content.apply(lambda content: lower_case(content))
+    df.content = df.content.apply(lambda content: remove_stop_words(content))
+    df.content = df.content.apply(lambda content: removing_numbers(content))
+    df.content = df.content.apply(lambda content: removing_punctuations(content))
+    df.content = df.content.apply(lambda content: removing_urls(content))
+    df.content = df.content.apply(lambda content: lemmatization(content))
     return df
 
-def save_processed_data(data_path, train_df, test_df):
+def save_processed_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     os.makedirs(data_path, exist_ok=True)
     train_df.to_csv(os.path.join(data_path, "train_processed.csv"), index=False)
     test_df.to_csv(os.path.join(data_path, "test_processed.csv"), index=False)

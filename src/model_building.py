@@ -15,14 +15,14 @@ def load_data():
     return train_data
 
 
-def prepare_data(train_data):
+def prepare_data(train_data: pd.DataFrame) -> tuple:
     # Prepare the data for training
     X_train = train_data.iloc[:, :-1].values  # All columns except the last one
     y_train = train_data.iloc[:, -1].values   # Last column is the label
     return X_train, y_train
 
 
-def model_building(params, X_train, y_train):
+def model_building(params: dict, X_train: np.ndarray, y_train: np.ndarray) -> GradientBoostingClassifier:
     # Define the model
     clf = GradientBoostingClassifier(n_estimators=params['n_estimators'], learning_rate=params['learning_rate'])
     
@@ -33,7 +33,7 @@ def model_building(params, X_train, y_train):
 
 
 # Save the model
-def save_model(model, filename):
+def save_model(model: GradientBoostingClassifier, filename: str) -> None:
     # Save the model
     pickle.dump(model, open(filename, 'wb'))
 

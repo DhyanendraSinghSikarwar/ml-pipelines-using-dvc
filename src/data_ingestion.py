@@ -5,20 +5,20 @@ import yaml
 
 from sklearn.model_selection import train_test_split
 
-def load_params():
+def load_params() -> float:
     return yaml.safe_load(open('params.yaml', 'r'))
 
-def read_data(url):
+def read_data(url: str) -> pd.DataFrame:
     df = pd.read_csv(url)
     return df
 
-def preprocess_data(df):
-    df.drop(columns=['tweet_id'],inplace=True)
-    final_df = df[df['sentiment'].isin(['happiness','sadness'])]
-    final_df['sentiment'].replace({'happiness':1, 'sadness':0},inplace=True)
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
+    df.drop(columns=['tweet_id'], inplace=True)
+    final_df = df[df['sentiment'].isin(['happiness', 'sadness'])]
+    final_df['sentiment'].replace({'happiness': 1, 'sadness': 0}, inplace=True)
     return final_df
 
-def save_data(data_path, train_df, test_df):
+def save_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     os.makedirs(data_path, exist_ok=True)
     train_df.to_csv(os.path.join(data_path, "train.csv"))
     test_df.to_csv(os.path.join(data_path, "test.csv"))

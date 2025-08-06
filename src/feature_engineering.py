@@ -16,7 +16,7 @@ def load_data():
     return train_data, test_data
 
 
-def preprocess_features(train_data, test_data):
+def preprocess_features(train_data: pd.DataFrame, test_data: pd.DataFrame) -> tuple:
     # Apply BOW
     X_train = train_data['content'].values
     y_train = train_data['sentiment'].values
@@ -29,7 +29,7 @@ def preprocess_features(train_data, test_data):
     return X_train, y_train, X_test, y_test
 
 
-def apply_bow(X_train, X_test, max_features):
+def apply_bow(X_train: np.ndarray, X_test: np.ndarray, max_features: int) -> tuple:
     # Apply Bag of Words
     vectorizer = CountVectorizer(max_features=max_features)
 
@@ -40,7 +40,7 @@ def apply_bow(X_train, X_test, max_features):
     return X_train_bow, X_test_bow, vectorizer
 
 
-def convert_to_dataframe(X_train_bow, X_test_bow, y_train, y_test, vectorizer):
+def convert_to_dataframe(X_train_bow: np.ndarray, X_test_bow: np.ndarray, y_train: np.ndarray, y_test: np.ndarray, vectorizer: CountVectorizer) -> tuple:
     # Convert to DataFrame
     train_df = pd.DataFrame(X_train_bow.toarray(), columns=vectorizer.get_feature_names_out())
     train_df['label'] = y_train
@@ -50,7 +50,7 @@ def convert_to_dataframe(X_train_bow, X_test_bow, y_train, y_test, vectorizer):
 
 
 # store the data inside data/features
-def save_data(data_path, train_df, test_df):
+def save_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     os.makedirs(data_path, exist_ok=True)
     train_df.to_csv(os.path.join(data_path, 'train_bow.csv'), index=False)
     test_df.to_csv(os.path.join(data_path, 'test_bow.csv'), index=False)
