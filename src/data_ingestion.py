@@ -6,11 +6,19 @@ import yaml
 from sklearn.model_selection import train_test_split
 
 def load_params() -> float:
-    return yaml.safe_load(open('params.yaml', 'r'))
+    try:
+        return yaml.safe_load(open('params.yaml', 'r'))
+    except Exception as e:
+        print(f"Error loading params: {e}")
+        return {}
 
 def read_data(url: str) -> pd.DataFrame:
-    df = pd.read_csv(url)
-    return df
+    try:
+        df = pd.read_csv(url)
+        return df
+    except Exception as e:
+        print(f"Error reading data from {url}: {e}")
+        return pd.DataFrame()
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df.drop(columns=['tweet_id'], inplace=True)
@@ -26,8 +34,12 @@ def save_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> 
 def main():
     params = load_params()
     test_size = params['data_ingestion']['test_size']
-    df = read_data('https://raw.githubusercontent.com/campusx-official/jupyter-masterclass/main/tweet_emotions.csv')
-    final_df = preprocess_data(df)
+    try:
+        df = read_data('https://raw.githubusercontent.com/campusx-official/jupyter-masterclass/main/tweet_emotions.csv')
+        final_df = preprocess_data(df)
+    except Exception as e:
+        print(f"Error in data processing: {e}")
+        return
 
     train_data, test_data = train_test_split(final_df, test_size=test_size, random_state=42)
 

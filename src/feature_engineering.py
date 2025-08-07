@@ -11,8 +11,19 @@ def load_params():
 
 def load_data():
     # fetch the data from data/processed
-    train_data = pd.read_csv('./data/processed/train_processed.csv')
-    test_data = pd.read_csv('./data/processed/test_processed.csv')
+    try:
+        train_data = pd.read_csv('./data/processed/train_processed.csv')
+        test_data = pd.read_csv('./data/processed/test_processed.csv')
+    except FileNotFoundError as e:
+        print(f"Error loading data: {e}")
+        return pd.DataFrame(), pd.DataFrame()
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return pd.DataFrame(), pd.DataFrame()
+    # Ensure the data is not empty
+    if train_data.empty or test_data.empty:
+        print("Data files are empty.")
+        return pd.DataFrame(), pd.DataFrame()
     return train_data, test_data
 
 
@@ -52,13 +63,20 @@ def convert_to_dataframe(X_train_bow: np.ndarray, X_test_bow: np.ndarray, y_trai
 # store the data inside data/features
 def save_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
     os.makedirs(data_path, exist_ok=True)
-    train_df.to_csv(os.path.join(data_path, 'train_bow.csv'), index=False)
-    test_df.to_csv(os.path.join(data_path, 'test_bow.csv'), index=False)
+    try:
+        train_df.to_csv(os.path.join(data_path, 'train_bow.csv'), index=False)
+        test_df.to_csv(os.path.join(data_path, 'test_bow.csv'), index=False)
+    except Exception as e:
+        print(f"Error saving data: {e}")
 
 
 def main():
     params = load_params()
-    max_features = params['feature_engineering']['max_features']
+    try:
+        max_features = params['feature_engineering']['max_features']
+    except KeyError as e:
+        print(f"Parameter missing in params.yaml: {e}")
+        return
 
     # fetch the data from data/processed
     train_data, test_data = load_data()

@@ -15,8 +15,12 @@ nltk.download('wordnet')
 
 def load_data():
     # fetch the data from data/raw
-    train_data = pd.read_csv('./data/raw/train.csv')
-    test_data = pd.read_csv('./data/raw/test.csv')
+    try:
+        train_data = pd.read_csv('./data/raw/train.csv')
+        test_data = pd.read_csv('./data/raw/test.csv')
+    except FileNotFoundError as e:
+        print(f"Error loading data: {e}")
+        return pd.DataFrame(), pd.DataFrame()
     return train_data, test_data
 
 # transform the text data
@@ -66,12 +70,15 @@ def remove_small_sentences(df: pd.DataFrame) -> None:
             df.text.iloc[i] = np.nan
 
 def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
-    df.content = df.content.apply(lambda content: lower_case(content))
-    df.content = df.content.apply(lambda content: remove_stop_words(content))
-    df.content = df.content.apply(lambda content: removing_numbers(content))
-    df.content = df.content.apply(lambda content: removing_punctuations(content))
-    df.content = df.content.apply(lambda content: removing_urls(content))
-    df.content = df.content.apply(lambda content: lemmatization(content))
+    try:
+        df.content = df.content.apply(lambda content: lower_case(content))
+        df.content = df.content.apply(lambda content: remove_stop_words(content))
+        df.content = df.content.apply(lambda content: removing_numbers(content))
+        df.content = df.content.apply(lambda content: removing_punctuations(content))
+        df.content = df.content.apply(lambda content: removing_urls(content))
+        df.content = df.content.apply(lambda content: lemmatization(content))
+    except Exception as e:
+        print(f"Error normalizing text: {e}")
     return df
 
 def save_processed_data(data_path: str, train_df: pd.DataFrame, test_df: pd.DataFrame) -> None:
@@ -88,8 +95,10 @@ def main():
 
     # store the preprocessed data at data/processed
     data_path = os.path.join('./data/processed')
-
-    save_processed_data(data_path, train_processed_data, test_processed_data)
+    try:
+        save_processed_data(data_path, train_processed_data, test_processed_data)
+    except Exception as e:
+       print(f"Error saving processed data: {e}")
 
 if __name__ == "__main__":
     main()

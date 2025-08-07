@@ -11,7 +11,18 @@ def load_params():
 
 def load_data():
     # fetch the data from data/features
-    train_data = pd.read_csv('./data/features/train_bow.csv')
+    try:
+        train_data = pd.read_csv('./data/features/train_bow.csv')
+    except FileNotFoundError as e:
+        print(f"Error loading data: {e}")
+        return pd.DataFrame()
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return pd.DataFrame()
+    # Ensure the data is not empty
+    if train_data.empty:
+        print("Data file is empty.")
+        return pd.DataFrame()
     return train_data
 
 
