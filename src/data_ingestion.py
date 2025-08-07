@@ -2,14 +2,34 @@ import pandas as pd
 import numpy as np
 import os
 import yaml 
+import logging
 
 from sklearn.model_selection import train_test_split
+
+logger = logging.getLogger('data_ingestion')
+logger.setLevel('DEBUG')
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel('DEBUG')
+
+file_handler = logging.FileHandler('errors.log')
+file_handler.setLevel('ERROR')
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 def load_params() -> float:
     try:
         return yaml.safe_load(open('params.yaml', 'r'))
+    except FileNotFoundError as e:
+        logger.error(f"Params file not found: {e}")
+        return {}
     except Exception as e:
-        print(f"Error loading params: {e}")
+        logger.error(f"Error loading params: {e}")
         return {}
 
 def read_data(url: str) -> pd.DataFrame:
@@ -17,7 +37,7 @@ def read_data(url: str) -> pd.DataFrame:
         df = pd.read_csv(url)
         return df
     except Exception as e:
-        print(f"Error reading data from {url}: {e}")
+        logger.error(f"Error reading data from {url}: {e}")
         return pd.DataFrame()
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -36,9 +56,19 @@ def main():
     test_size = params['data_ingestion']['test_size']
     try:
         df = read_data('https://raw.githubusercontent.com/campusx-official/jupyter-masterclass/main/tweet_emotions.csv')
+        logger.info("Data loaded successfully.")
+    except Exception as e:
+        logger.error(f"Error loading data: {e}")
+        return
+
+    if df.empty:
+        logger.warning("DataFrame is empty after loading.")
+        return
+
+    try:
         final_df = preprocess_data(df)
     except Exception as e:
-        print(f"Error in data processing: {e}")
+        logger.error(f"Error in data processing: {e}")
         return
 
     train_data, test_data = train_test_split(final_df, test_size=test_size, random_state=42)
